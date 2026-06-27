@@ -7,13 +7,13 @@ export async function createSupabaseServerClient() {
 
   return createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
     cookies: {
-      get(name) {
+      get(name: string) {
         return cookieStore.get(name)?.value;
       },
-      set() {
+      set(_name: string, _value: string, _options: Parameters<typeof cookieStore.set>[2]) {
         // Read-only in server components. Session refresh is handled in middleware.
       },
-      remove() {
+      remove(_name: string, _options: Parameters<typeof cookieStore.set>[2]) {
         // Read-only in server components. Session refresh is handled in middleware.
       }
     }
