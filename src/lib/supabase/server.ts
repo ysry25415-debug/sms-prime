@@ -22,7 +22,7 @@ export async function createSupabaseServerClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // Server components cannot always write cookies; middleware refreshes sessions.
+          // Some server component renders are read-only; Supabase will retry on the next request.
         }
       }
     }
