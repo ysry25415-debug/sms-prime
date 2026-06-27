@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  PAST_DUE
+  CANCELED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PURCHASE
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELED
+  EXPIRED
+}
+
+enum MessageStatus {
+  WAITING
+  RECEIVED
+  RETRY
+  CANCELED
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id                String              @id @default(cuid())
+  email             String              @unique
+  name              String?
+  passwordHash      String?
+  emailVerifiedAt   DateTime?
+  role              UserRole            @default(USER)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  subscriptions     Subscription[]
+  walletTransactions WalletTransaction[]
+  orders            SmsOrder[]
+  messages          SmsMessage[]
+  apiKeys           ApiKey[]
+  supportTickets    SupportTicket[]
+}
+
+model Subscription {
+  id        String               @id @default(cuid())
+  userId    String
+  plan      String
+  status    SubscriptionStatus   @default(ACTIVE)
+  startsAt  DateTime             @default(now())
+  endsAt    DateTime?
+  metadata  Json?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WalletTransaction {
+  id          String             @id @default(cuid())
+  userId      String
+  type        TransactionType
+  status      TransactionStatus  @default(PENDING)
+  amount      Decimal            @db.Decimal(18,2)
+  currency    String             @default("USD")
+  description String?
+  reference   String?
+  provider    String?
+  createdAt   DateTime           @default(now())
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SmsOrder {
+  id           String       @id @default(cuid())
+  userId       String
+  service      String
+  country      String
+  provider     String?
+  phoneNumber  String?
+  activationId String?      @unique
+  price        Decimal      @db.Decimal(18,2)
+  status       OrderStatus  @default(PENDING)
+  expiresAt    DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     SmsMessage[]
+}
+
+model SmsMessage {
+  id           String         @id @default(cuid())
+  userId       String?
+  orderId      String?
+  activationId String?
+  service      String?
+  country      String?
+  provider     String?
+  code         String?
+  text         String?
+  status       MessageStatus  @default(WAITING)
+  receivedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  order        SmsOrder?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([activationId])
+  @@index([service])
+}
+
+model ApiKey {
+  id         String        @id @default(cuid())
+  userId     String
+  name       String
+  keyHash    String        @unique
+  prefix     String
+  status     ApiKeyStatus  @default(ACTIVE)
+  lastUsedAt DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
+  id        String               @id @default(cuid())
+  userId    String
+  subject   String
+  message   String
+  status    SupportTicketStatus  @default(OPEN)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
