@@ -15,14 +15,8 @@ function requireValue(name: string, value: MaybeString) {
 export const env = {
   appUrl: pick(process.env.NEXT_PUBLIC_APP_URL) ?? "http://localhost:3000",
   databaseUrl: process.env.DATABASE_URL,
-  supabaseUrl: requireValue(
-    "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL",
-    pick(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_URL)
-  ),
-  supabaseAnonKey: requireValue(
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY",
-    pick(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, process.env.SUPABASE_ANON_KEY)
-  ),
+  supabaseUrl: pick(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_URL),
+  supabaseAnonKey: pick(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, process.env.SUPABASE_ANON_KEY),
   smsBowerBaseUrl:
     pick(process.env.SMSBOWER_BASE_URL) ?? "https://smsbower.page/stubs/handler_api.php",
   smsBowerApiKey: process.env.SMSBOWER_API_KEY,
@@ -31,6 +25,14 @@ export const env = {
 
 export function requireDatabaseUrl() {
   return requireValue("DATABASE_URL", env.databaseUrl);
+}
+
+export function requireSupabaseUrl() {
+  return requireValue("NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL", env.supabaseUrl);
+}
+
+export function requireSupabaseAnonKey() {
+  return requireValue("NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY", env.supabaseAnonKey);
 }
 
 export function requireSmsBowerApiKey() {
