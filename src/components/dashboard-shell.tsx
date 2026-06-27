@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
@@ -14,11 +15,12 @@ import {
   WalletCards,
   X
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useShellStore } from "@/stores/use-shell-store";
 import { Button } from "@/components/ui/button";
 
-const nav = [
+const nav: Array<{ href: Route; label: string; icon: LucideIcon }> = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/wallet", label: "Wallet", icon: WalletCards },
   { href: "/dashboard/transactions", label: "Transactions", icon: Coins },
