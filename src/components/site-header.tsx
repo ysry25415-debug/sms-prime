@@ -41,12 +41,14 @@ export function SiteHeader() {
                 <Settings className="h-4 w-4" />
               </Button>
               <div className="hidden rounded-xl border border-white/8 bg-white/5 px-4 py-2 text-sm text-text md:block">
-                Balance: <span className="font-semibold text-emerald-300">$2,480.90</span>
+                Wallet: <span className="font-semibold text-muted">not funded</span>
               </div>
-              <Button variant="primary" size="sm">
-                <UserCircle2 className="h-4 w-4" />
-                Profile
-              </Button>
+              <Link href="/dashboard/profile">
+                <Button variant="primary" size="sm">
+                  <UserCircle2 className="h-4 w-4" />
+                  Profile
+                </Button>
+              </Link>
             </>
           ) : (
             <>

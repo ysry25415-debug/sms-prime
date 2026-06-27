@@ -27,11 +27,12 @@ export function ActivityFeed() {
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-medium text-text">{provider.name}</div>
-                  <div className="text-xs text-muted">Uptime {provider.uptime}</div>
+                  <div className="mt-1 text-xs leading-5 text-muted">{provider.detail}</div>
                 </div>
-                <Badge variant={provider.status === "Operational" ? "success" : "warning"}>{provider.status}</Badge>
+                <Badge variant={provider.status === "Connected" || provider.status === "Ready" ? "success" : "warning"}>
+                  {provider.status}
+                </Badge>
               </div>
-              <div className="mt-3 text-xs text-muted">Latency {provider.latency}</div>
             </div>
           ))}
         </div>
@@ -39,18 +40,24 @@ export function ActivityFeed() {
         <div className="rounded-2xl border border-white/8 bg-slate-950/30 p-4">
           <CardDescription>Latest SMS</CardDescription>
           <div className="mt-3 space-y-3">
-            {messages.map((message) => (
-              <div key={message.code} className="rounded-2xl border border-white/8 bg-white/5 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-text">{message.service}</div>
-                  <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
+            {messages.length > 0 ? (
+              messages.map((message) => (
+                <div key={message.code} className="rounded-2xl border border-white/8 bg-white/5 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-text">{message.service}</div>
+                    <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
+                  </div>
+                  <div className="mt-2 text-xs text-muted">
+                    {message.number} | {message.country}
+                  </div>
+                  <div className="mt-2 text-lg font-semibold text-emerald-300">{message.code}</div>
                 </div>
-                <div className="mt-2 text-xs text-muted">
-                  {message.number} | {message.country}
-                </div>
-                <div className="mt-2 text-lg font-semibold text-emerald-300">{message.code}</div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm leading-6 text-muted">
+                No SMS messages yet. Real verification codes will appear here after a successful number order.
               </div>
-            ))}
+            )}
           </div>
         </div>
       </Card>

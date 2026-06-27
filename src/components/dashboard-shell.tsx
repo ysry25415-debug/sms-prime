@@ -37,7 +37,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { mobileNavOpen, toggleMobileNav, closeMobileNav } = useShellStore();
 
   return (
-    <div className="relative grid min-h-[calc(100vh-80px)] lg:grid-cols-[280px_1fr]">
+    <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] lg:grid-cols-[300px_1fr]">
+      <div className="pointer-events-none absolute left-24 top-10 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-20 right-16 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
       {mobileNavOpen ? (
         <button
           type="button"
@@ -50,13 +52,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           "fixed bottom-0 left-0 top-[80px] z-50 w-[280px] border-r border-white/8 bg-slate-950/95 p-4 shadow-glow backdrop-blur-2xl transition-transform duration-300 lg:sticky lg:z-auto lg:h-[calc(100vh-80px)] lg:translate-x-0 lg:p-6",
+          "lg:my-6 lg:ml-6 lg:h-[calc(100vh-128px)] lg:rounded-[28px] lg:border lg:bg-white/[0.04]",
           mobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-white/8 bg-white/5 p-4 lg:block">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-white/8 bg-gradient-to-br from-blue-500/15 to-emerald-500/10 p-4 lg:block">
           <div>
             <div className="text-sm font-semibold text-text">SMSPrime Control Center</div>
-            <div className="mt-1 text-xs text-muted">Familiar workflow, original identity</div>
+            <div className="mt-1 text-xs text-muted">Real data only, no demo balances</div>
           </div>
           <button type="button" className="rounded-xl border border-white/10 p-2 text-text lg:hidden" onClick={closeMobileNav} aria-label="Close sidebar">
             <X className="h-4 w-4" />
@@ -85,7 +88,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
 
-      <main className="min-w-0 p-4 lg:p-6">
+      <main className="relative min-w-0 p-4 lg:p-6">
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/5 p-3 lg:hidden">
           <div>
             <div className="text-sm font-semibold text-text">SMSPrime</div>

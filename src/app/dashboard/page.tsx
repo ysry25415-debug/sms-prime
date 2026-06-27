@@ -8,19 +8,19 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <section className="rounded-[28px] border border-white/8 bg-white/5 p-6 backdrop-blur-xl">
         <p className="text-sm text-muted">Welcome back</p>
-        <h1 className="mt-2 text-3xl font-semibold text-text">Your SMSPrime dashboard is ready.</h1>
+        <h1 className="mt-2 text-3xl font-semibold text-text">Manage real SMS operations from one clean workspace.</h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-          This layout mirrors the fast, familiar SMS workflow users expect while keeping the visual identity fully original.
+          The dashboard now starts from a truthful zero state. Wallet balance, orders, and messages will only change when real provider or payment data is connected.
         </p>
       </section>
       <StatsGrid />
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <LiveBalanceCard />
         <div className="rounded-[28px] border border-white/8 bg-white/5 p-6 backdrop-blur-xl">
-          <p className="text-sm text-muted">Workflow note</p>
-          <h2 className="mt-2 text-2xl font-semibold text-text">Dashboard is protected and wired to Supabase sessions.</h2>
+          <p className="text-sm text-muted">Production checklist</p>
+          <h2 className="mt-2 text-2xl font-semibold text-text">No demo data is shown as customer activity.</h2>
           <p className="mt-3 text-sm leading-7 text-muted">
-            The live balance card now talks to the internal provider route, so once the SMSBower key is completed the dashboard will show real data without changing the UI.
+            Add SMSBower and payment gateway credentials in Vercel, then real services, deposits, orders, and codes can flow into these cards.
           </p>
         </div>
       </div>

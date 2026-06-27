@@ -16,9 +16,9 @@ export default function HomePage() {
           <LiveBalanceCard />
           <div className="rounded-[28px] border border-white/8 bg-white/5 p-6 backdrop-blur-xl">
             <p className="text-sm text-muted">Architecture</p>
-            <h2 className="mt-2 text-2xl font-semibold text-text">The UI is now connected to a real provider layer.</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-text">Built for real provider and payment data, not fake activity.</h2>
             <p className="mt-3 text-sm leading-7 text-muted">
-              Authentication, dashboard protection, SMSBower routing, webhook handling, and a Supabase-ready backend are all in place. The only remaining blocker for full live balance checks is the complete SMSBower API key.
+              Authentication, dashboard protection, SMSBower routing, webhook handling, and a Supabase-ready backend are in place. The dashboard stays at a truthful zero state until production credentials are added.
             </p>
           </div>
         </div>

@@ -29,38 +29,47 @@ export default function SmsMessagesPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        {messages.map((message) => (
-          <Card key={message.code} className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-lg font-semibold text-text">{message.service}</div>
-                <div className="mt-1 text-sm text-muted">
-                  {message.number} | {message.country}
+      {messages.length > 0 ? (
+        <div className="grid gap-4 xl:grid-cols-2">
+          {messages.map((message) => (
+            <Card key={message.code} className="space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-lg font-semibold text-text">{message.service}</div>
+                  <div className="mt-1 text-sm text-muted">
+                    {message.number} | {message.country}
+                  </div>
+                </div>
+                <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
+              </div>
+
+              <div className="grid gap-3 rounded-2xl border border-white/8 bg-white/5 p-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">Code</p>
+                  <p className="mt-2 text-2xl font-semibold text-emerald-300">{message.code}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">Provider</p>
+                  <p className="mt-2 text-sm text-text">{message.provider}</p>
+                  <p className="mt-1 text-xs text-muted">{message.time}</p>
                 </div>
               </div>
-              <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
-            </div>
 
-            <div className="grid gap-3 rounded-2xl border border-white/8 bg-white/5 p-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-muted">Code</p>
-                <p className="mt-2 text-2xl font-semibold text-emerald-300">{message.code}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-muted">Provider</p>
-                <p className="mt-2 text-sm text-text">{message.provider}</p>
-                <p className="mt-1 text-xs text-muted">{message.time}</p>
-              </div>
-            </div>
-
-            <Button variant="secondary" className="w-full" onClick={() => copyCode(message.code)}>
-              {copied === message.code ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
-              {copied === message.code ? "Copied" : "Copy code"}
-            </Button>
-          </Card>
-        ))}
-      </div>
+              <Button variant="secondary" className="w-full" onClick={() => copyCode(message.code)}>
+                {copied === message.code ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+                {copied === message.code ? "Copied" : "Copy code"}
+              </Button>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card className="border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+          <h2 className="text-xl font-semibold text-text">No verification messages yet.</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted">
+            Codes will appear here only after SMSBower returns a real message for an active order.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

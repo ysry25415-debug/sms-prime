@@ -90,15 +90,15 @@ export function Hero() {
                 <h2 className="text-xl font-semibold text-text">Buy number in 3 steps</h2>
               </div>
               <div className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
-                Live
+                Preview
               </div>
             </div>
 
             <div className="space-y-4">
               {[
-                ["1", "Choose service", "Telegram"],
-                ["2", "Select country", "Egypt"],
-                ["3", "Reserve number", "One click"]
+                ["1", "Choose service", "Search from provider list"],
+                ["2", "Select country", "See live price and stock"],
+                ["3", "Reserve number", "Start real order timer"]
               ].map(([step, title, detail]) => (
                 <div key={step} className="flex items-center gap-4 rounded-2xl border border-white/8 bg-white/5 p-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 font-semibold text-primary">
@@ -114,8 +114,8 @@ export function Hero() {
 
             <div className="mt-6 rounded-2xl border border-white/8 bg-gradient-to-br from-blue-500/15 to-emerald-500/10 p-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted">Countdown</span>
-                <span className="text-sm font-semibold text-text">09:58</span>
+                <span className="text-sm text-muted">Order timer</span>
+                <span className="text-sm font-semibold text-text">Starts after purchase</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-white/10">
                 <div className="h-2 w-2/3 rounded-full bg-primary" />

@@ -33,7 +33,7 @@ export function LiveBalanceCard() {
     <Card className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <CardDescription>SMSBower balance</CardDescription>
+          <CardDescription>Provider balance</CardDescription>
           <CardTitle className="mt-1 text-3xl">{query.isLoading ? "Loading..." : balance ?? "--"}</CardTitle>
         </div>
         <div className="rounded-2xl bg-primary/15 p-3 text-primary">
@@ -44,10 +44,12 @@ export function LiveBalanceCard() {
       {error ? (
         <div className="flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertTriangle className="h-4 w-4" />
-          {error.includes("Provider API key") ? "Provider balance will appear after SMSBower is configured." : error}
+          {error.includes("Provider API key")
+            ? "SMSBOWER_API_KEY is missing in Vercel. Add it to show the real SMSBower balance."
+            : error}
         </div>
       ) : (
-        <p className="text-sm text-muted">Live provider balance is pulled through the secure internal API layer.</p>
+        <p className="text-sm text-muted">This value is loaded from SMSBower through the secure internal API route.</p>
       )}
 
       <Button
