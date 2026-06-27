@@ -22,7 +22,8 @@ export function LiveBalanceCard() {
   const query = useQuery({
     queryKey: ["smsbower", "balance"],
     queryFn: fetchBalance,
-    refetchInterval: 60_000
+    refetchInterval: 60_000,
+    retry: false
   });
 
   const balance = query.data && "ok" in query.data && query.data.ok ? query.data.data.balance : null;
@@ -43,7 +44,7 @@ export function LiveBalanceCard() {
       {error ? (
         <div className="flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertTriangle className="h-4 w-4" />
-          {error}
+          {error.includes("Provider API key") ? "Provider balance will appear after SMSBower is configured." : error}
         </div>
       ) : (
         <p className="text-sm text-muted">Live provider balance is pulled through the secure internal API layer.</p>

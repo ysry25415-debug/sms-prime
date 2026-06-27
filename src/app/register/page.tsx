@@ -35,7 +35,7 @@ export default function RegisterPage() {
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
@@ -47,6 +47,11 @@ export default function RegisterPage() {
 
       if (error) {
         setMessage(error.message);
+        return;
+      }
+
+      if (!data.user && !data.session) {
+        setMessage("Supabase did not create the account. Check Auth settings and allowed email providers.");
         return;
       }
 
