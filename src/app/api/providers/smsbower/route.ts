@@ -120,12 +120,15 @@ async function handleRequest(request: Request) {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown provider error";
+    const safeMessage = message.includes("SMSBOWER_API_KEY")
+      ? "Provider API key is not configured yet."
+      : message;
     const raw = error instanceof Error && "raw" in error ? String((error as { raw?: string }).raw ?? "") : undefined;
 
     return NextResponse.json(
       {
         ok: false,
-        error: message,
+        error: safeMessage,
         raw
       },
       { status: 500 }

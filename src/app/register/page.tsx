@@ -33,26 +33,30 @@ export default function RegisterPage() {
     setLoading(true);
     setMessage(null);
 
-    const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: {
-          name: values.name
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name
+          }
         }
+      });
+
+      if (error) {
+        setMessage(error.message);
+        return;
       }
-    });
 
-    setLoading(false);
-
-    if (error) {
-      setMessage(error.message);
-      return;
+      setMessage("Account created. Please verify your email before signing in.");
+      router.push("/verify");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to create an account right now.");
+    } finally {
+      setLoading(false);
     }
-
-    setMessage("Account created. Please verify your email before signing in.");
-    router.push("/verify");
   });
 
   return (
