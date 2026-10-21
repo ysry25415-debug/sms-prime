@@ -11,7 +11,8 @@ import {
   getServicesList,
   getStatus,
   getTopCountriesByService,
-  setStatus
+  setStatus,
+  SmsBowerError
 } from "@/lib/providers/smsbower";
 
 async function readInput(request: Request) {
@@ -123,7 +124,9 @@ async function handleRequest(request: Request) {
     const safeMessage = message.includes("SMSBOWER_API_KEY")
       ? "Provider API key is not configured yet."
       : message;
-    const raw = error instanceof Error && "raw" in error ? String((error as { raw?: string }).raw ?? "") : undefined;
+    const providerError = error instanceof SmsBowerError ? error : undefined;
+    const raw = providerError?.raw;
+    const status = providerError?.status ?? 500;
 
     return NextResponse.json(
       {
@@ -131,7 +134,7 @@ async function handleRequest(request: Request) {
         error: safeMessage,
         raw
       },
-      { status: 500 }
+      { status }
     );
   }
 }
