@@ -85,7 +85,8 @@ async function requestText(params: Record<string, string | number | undefined>) 
   const response = await fetch(buildUrl(params), {
     method: "GET",
     headers: { Accept: "application/json, text/plain;q=0.9, */*;q=0.8" },
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000)
   });
 
   const raw = await response.text();
@@ -222,7 +223,8 @@ export async function getActualWalletAddress(input: { coin: "usdt" | "trx"; netw
   const response = await fetch(buildPaymentUrl({ coin: input.coin, network: input.network }), {
     method: "GET",
     headers: { Accept: "application/json, text/plain;q=0.9, */*;q=0.8" },
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000)
   });
 
   const raw = await response.text();

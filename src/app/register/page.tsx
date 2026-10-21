@@ -90,7 +90,7 @@ export default function RegisterPage() {
           <Input type="password" placeholder="Create a secure password" {...form.register("password")} />
           {form.formState.errors.password ? <p className="mt-2 text-xs text-danger">{form.formState.errors.password.message}</p> : null}
         </div>
-        {message ? <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-text">{message}</div> : null}
+        {message ? <div className="rounded-lg border border-[#F0D47A] bg-[#FFFBEB] px-4 py-3 text-sm text-[#714A00]">{message}</div> : null}
         <Button className="w-full" disabled={loading}>
           {loading ? "Creating account..." : "Create account"}
         </Button>

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { messages } from "@/data/mock";
 
 export default function SmsMessagesPage() {
@@ -19,13 +18,12 @@ export default function SmsMessagesPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[28px] border border-white/8 bg-white/5 p-6 backdrop-blur-xl">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <section className="border-b border-border pb-5">
+        <div>
           <div>
-            <p className="text-sm text-muted">SMS Messages</p>
-            <h1 className="mt-1 text-3xl font-semibold text-text">Monitor delivery status and copy verification codes instantly.</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.035em] text-text">Messages</h1>
+            <p className="mt-1 text-sm text-muted">Incoming verification messages remain linked to their activation.</p>
           </div>
-          <Input className="w-full lg:w-72" placeholder="Search messages..." />
         </div>
       </section>
 
@@ -43,27 +41,27 @@ export default function SmsMessagesPage() {
                 <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
               </div>
 
-              <div className="grid gap-3 rounded-2xl border border-white/8 bg-white/5 p-4 sm:grid-cols-2">
+              <div className="grid gap-3 rounded-lg bg-[#F7F5ED] p-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">Code</p>
-                  <p className="mt-2 text-2xl font-semibold text-emerald-300">{message.code}</p>
+                  <p className="text-xs text-muted">Code</p>
+                  <p className="mt-2 text-2xl font-semibold text-text num">{message.code}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">Provider</p>
+                  <p className="text-xs text-muted">Provider</p>
                   <p className="mt-2 text-sm text-text">{message.provider}</p>
                   <p className="mt-1 text-xs text-muted">{message.time}</p>
                 </div>
               </div>
 
               <Button variant="secondary" className="w-full" onClick={() => copyCode(message.code)}>
-                {copied === message.code ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+                {copied === message.code ? <Check className="h-4 w-4 text-[#175C37]" /> : <Copy className="h-4 w-4" />}
                 {copied === message.code ? "Copied" : "Copy code"}
               </Button>
             </Card>
           ))}
         </div>
       ) : (
-        <Card className="border-dashed border-white/10 bg-white/[0.03] p-10 text-center">
+        <Card className="border-dashed bg-[#FAF9F4] p-10 text-center">
           <h2 className="text-xl font-semibold text-text">No verification messages yet.</h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted">
             Codes will appear here only after SMSBower returns a real message for an active order.

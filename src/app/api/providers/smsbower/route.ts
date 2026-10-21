@@ -14,6 +14,22 @@ import {
   setStatus,
   SmsBowerError
 } from "@/lib/providers/smsbower";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const writeActions = new Set(["getNumber", "getNumberV2", "setStatus"]);
+const privateActions = new Set(["getBalance", "getNumber", "getNumberV2", "getStatus", "setStatus", "getActualWalletAddress"]);
+
+function requiredField(value: unknown, name: string) {
+  const result = typeof value === "string" ? value.trim() : "";
+  if (!result) throw new SmsBowerError(`Missing required field: ${name}`, 400);
+  return result;
+}
+
+async function hasAuthenticatedUser() {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.getUser();
+  return !error && Boolean(data.user);
+}
 
 async function readInput(request: Request) {
   const url = new URL(request.url);
@@ -46,15 +62,23 @@ async function handleRequest(request: Request) {
     return NextResponse.json({ ok: false, error: "Missing action" }, { status: 400 });
   }
 
+  if (request.method === "GET" && writeActions.has(action)) {
+    return NextResponse.json({ ok: false, error: "Use POST for this action." }, { status: 405 });
+  }
+
   try {
+    if (privateActions.has(action) && !(await hasAuthenticatedUser())) {
+      return NextResponse.json({ ok: false, error: "Authentication is required for this action." }, { status: 401 });
+    }
+
     switch (action) {
       case "getBalance":
         return NextResponse.json(await getBalance());
       case "getNumber":
         return NextResponse.json(
           await getNumber({
-            service: String(body.service ?? ""),
-            country: String(body.country ?? ""),
+            service: requiredField(body.service, "service"),
+            country: requiredField(body.country, "country"),
             maxPrice: body.maxPrice as string | number | undefined,
             providerIds: body.providerIds as string | undefined,
             exceptProviderIds: body.exceptProviderIds as string | undefined,
@@ -67,8 +91,8 @@ async function handleRequest(request: Request) {
       case "getNumberV2":
         return NextResponse.json(
           await getNumberV2({
-            service: String(body.service ?? ""),
-            country: String(body.country ?? ""),
+            service: requiredField(body.service, "service"),
+            country: requiredField(body.country, "country"),
             maxPrice: body.maxPrice as string | number | undefined,
             providerIds: body.providerIds as string | undefined,
             exceptProviderIds: body.exceptProviderIds as string | undefined,
@@ -77,10 +101,13 @@ async function handleRequest(request: Request) {
           })
         );
       case "getStatus":
-        return NextResponse.json(await getStatus(String(body.id ?? "")));
+        return NextResponse.json(await getStatus(requiredField(body.id, "id")));
       case "setStatus":
+        if (!(["1", "3", "6", "8"] as string[]).includes(String(body.status ?? ""))) {
+          return NextResponse.json({ ok: false, error: "Unsupported activation status." }, { status: 400 });
+        }
         return NextResponse.json(
-          await setStatus(String(body.id ?? ""), String(body.status ?? "") as "1" | "3" | "6" | "8")
+          await setStatus(requiredField(body.id, "id"), String(body.status) as "1" | "3" | "6" | "8")
         );
       case "getPrices":
         return NextResponse.json(
@@ -125,14 +152,12 @@ async function handleRequest(request: Request) {
       ? "Provider API key is not configured yet."
       : message;
     const providerError = error instanceof SmsBowerError ? error : undefined;
-    const raw = providerError?.raw;
     const status = providerError?.status ?? 500;
 
     return NextResponse.json(
       {
         ok: false,
-        error: safeMessage,
-        raw
+        error: safeMessage
       },
       { status }
     );

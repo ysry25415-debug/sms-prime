@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { AuthScreen } from "@/components/auth-screen";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 const plans = [
   { name: "Starter", price: "$19", details: "Basic access for individual operators." },
@@ -22,7 +21,7 @@ export default function SubscriptionPage() {
     >
       <div className="space-y-3">
         {plans.map((plan, index) => (
-          <div key={plan.name} className="rounded-2xl border border-white/8 bg-white/5 p-4">
+          <div key={plan.name} className="rounded-lg border border-border bg-[#F7F5ED] p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold text-text">{plan.name}</div>
@@ -32,7 +31,7 @@ export default function SubscriptionPage() {
             </div>
           </div>
         ))}
-        <Button className="w-full">Continue</Button>
+        <p className="pt-2 text-sm leading-6 text-muted">Plan checkout will appear here when billing is connected.</p>
       </div>
     </AuthScreen>
   );

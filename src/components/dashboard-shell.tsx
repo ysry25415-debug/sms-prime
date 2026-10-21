@@ -37,35 +37,30 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { mobileNavOpen, toggleMobileNav, closeMobileNav } = useShellStore();
 
   return (
-    <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-[1440px] lg:grid-cols-[300px_1fr]">
-      <div className="pointer-events-none absolute left-24 top-10 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-20 right-16 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
+    <div className="min-h-[calc(100vh-64px)] bg-[#F1EEDC] lg:grid lg:grid-cols-[228px_minmax(0,1fr)]">
       {mobileNavOpen ? (
         <button
           type="button"
           aria-label="Close navigation"
-          className="fixed inset-x-0 bottom-0 top-[80px] z-40 bg-black/50 lg:hidden"
+          className="fixed inset-x-0 bottom-0 top-16 z-40 bg-black/20 lg:hidden"
           onClick={closeMobileNav}
         />
       ) : null}
 
       <aside
         className={cn(
-          "fixed bottom-0 left-0 top-[80px] z-50 w-[280px] border-r border-white/8 bg-slate-950/95 p-4 shadow-glow backdrop-blur-2xl transition-transform duration-300 lg:sticky lg:z-auto lg:h-[calc(100vh-80px)] lg:translate-x-0 lg:p-6",
-          "lg:my-6 lg:ml-6 lg:h-[calc(100vh-128px)] lg:rounded-[28px] lg:border lg:bg-white/[0.04]",
+          "fixed bottom-0 left-0 top-16 z-50 flex w-[228px] flex-col bg-[#F1EEDC] p-4 transition-transform duration-200 lg:sticky lg:top-0 lg:z-auto lg:h-[calc(100vh-64px)] lg:translate-x-0",
           mobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-white/8 bg-gradient-to-br from-blue-500/15 to-emerald-500/10 p-4 lg:block">
-          <div>
-            <div className="text-sm font-semibold text-text">SMSPrime Control Center</div>
-            <div className="mt-1 text-xs text-muted">Real data only, no demo balances</div>
-          </div>
-          <button type="button" className="rounded-xl border border-white/10 p-2 text-text lg:hidden" onClick={closeMobileNav} aria-label="Close sidebar">
+        <div className="mb-8 flex items-center justify-between px-2 lg:block">
+          <div className="flex items-center gap-2.5"><span className="grid h-8 w-8 place-items-center rounded-lg bg-[#E5B928] text-sm font-bold text-text">SP</span><span className="text-sm font-semibold text-text">SMSPrime</span></div>
+          <div className="mt-4 rounded-lg border border-[#DED9C7] bg-[#F7F5ED] px-3 py-2 text-xs text-muted">Personal workspace</div>
+          <button type="button" className="rounded-lg border border-border p-2 text-text lg:hidden" onClick={closeMobileNav} aria-label="Close sidebar">
             <X className="h-4 w-4" />
           </button>
         </div>
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {nav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
@@ -74,13 +69,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 href={href}
                 onClick={closeMobileNav}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition",
+                  "flex h-9 items-center gap-2.5 rounded-lg px-3 text-sm transition",
                   active
-                    ? "border-primary/30 bg-primary/15 text-text"
-                    : "border-transparent bg-transparent text-muted hover:border-white/8 hover:bg-white/5 hover:text-text"
+                    ? "bg-white text-text"
+                    : "text-muted hover:bg-[#F7F5ED] hover:text-text"
                 )}
               >
-                <Icon className={cn("h-4 w-4", active && "text-primary")} />
+                <Icon className={cn("h-4 w-4", active && "text-[#9A6700]")} />
                 {label}
               </Link>
             );
@@ -88,11 +83,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
 
-      <main className="relative min-w-0 p-4 lg:p-6">
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/8 bg-white/5 p-3 lg:hidden">
+      <main className="min-w-0 bg-white p-5 lg:m-2 lg:rounded-2xl lg:border lg:border-border lg:p-6">
+        <div className="mb-5 flex items-center justify-between lg:hidden">
           <div>
             <div className="text-sm font-semibold text-text">SMSPrime</div>
-            <div className="text-xs text-muted">Dashboard navigation</div>
+            <div className="text-xs text-muted">Personal workspace</div>
           </div>
           <Button variant="secondary" size="sm" onClick={toggleMobileNav}>
             <Menu className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export function AuthScreen({
@@ -13,32 +13,17 @@ export function AuthScreen({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-hero-grid px-4 py-10">
-      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-        <section className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-muted">
-            <ShieldCheck className="h-4 w-4 text-emerald-300" />
-            Secure account workflow
-          </div>
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-text sm:text-5xl">
-            {title}
-          </h1>
+    <div className="min-h-screen bg-[#F7F5ED] px-5 py-10 lg:py-16">
+      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-center">
+        <section>
+          <div className="flex items-center gap-2.5 text-sm font-semibold text-text"><span className="grid h-8 w-8 place-items-center rounded-lg bg-[#E5B928]">SP</span> SMSPrime</div>
+          <h1 className="mt-10 max-w-[11ch] text-5xl font-semibold leading-[0.94] tracking-[-0.05em] text-text sm:text-6xl">{title}</h1>
           <p className="max-w-xl text-base leading-7 text-muted">{description}</p>
-          <div className="flex flex-wrap gap-3 text-sm text-muted">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              Premium interface
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
-              <ArrowRight className="h-4 w-4 text-success" />
-              Fast onboarding
-            </div>
-          </div>
+          <p className="mt-8 inline-flex items-center gap-2 text-sm text-text"><ArrowRight className="h-4 w-4 text-[#9A6700]" />Your workspace keeps activations and account controls in one place.</p>
         </section>
-
-        <Card className="mx-auto w-full max-w-md border-white/10 bg-slate-950/55 p-6 shadow-glow">
+        <Card className="mx-auto w-full max-w-md p-6">
           {children}
-          {footer ? <div className="mt-6 border-t border-white/8 pt-4">{footer}</div> : null}
+          {footer ? <div className="mt-6 border-t border-border pt-4">{footer}</div> : null}
         </Card>
       </div>
     </div>

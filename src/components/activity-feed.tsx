@@ -9,8 +9,8 @@ export function ActivityFeed() {
         <CardTitle>Recent activity</CardTitle>
         <div className="space-y-3">
           {activity.map((item, index) => (
-            <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/5 p-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
+            <div key={item} className="flex items-center gap-3 rounded-lg border border-border bg-[#FAF9F4] p-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#F1EEDC] text-sm font-semibold text-text">
                 {index + 1}
               </div>
               <p className="text-sm text-text">{item}</p>
@@ -23,7 +23,7 @@ export function ActivityFeed() {
         <CardTitle>API status</CardTitle>
         <div className="space-y-3">
           {providers.map((provider) => (
-            <div key={provider.name} className="rounded-2xl border border-white/8 bg-white/5 p-4">
+            <div key={provider.name} className="rounded-lg border border-border bg-[#FAF9F4] p-4">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <div className="text-sm font-medium text-text">{provider.name}</div>
@@ -37,12 +37,12 @@ export function ActivityFeed() {
           ))}
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-slate-950/30 p-4">
+        <div className="rounded-lg bg-[#F7F5ED] p-4">
           <CardDescription>Latest SMS</CardDescription>
           <div className="mt-3 space-y-3">
             {messages.length > 0 ? (
               messages.map((message) => (
-                <div key={message.code} className="rounded-2xl border border-white/8 bg-white/5 p-4">
+                <div key={message.code} className="rounded-lg border border-border bg-white p-4">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium text-text">{message.service}</div>
                     <Badge variant={message.status === "Delivered" ? "success" : "warning"}>{message.status}</Badge>
@@ -50,11 +50,11 @@ export function ActivityFeed() {
                   <div className="mt-2 text-xs text-muted">
                     {message.number} | {message.country}
                   </div>
-                  <div className="mt-2 text-lg font-semibold text-emerald-300">{message.code}</div>
+                  <div className="mt-2 text-lg font-semibold text-[#175C37]">{message.code}</div>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-5 text-sm leading-6 text-muted">
+              <div className="rounded-lg border border-dashed border-border bg-white p-5 text-sm leading-6 text-muted">
                 No SMS messages yet. Real verification codes will appear here after a successful number order.
               </div>
             )}

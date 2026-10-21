@@ -53,10 +53,11 @@ function toFiniteNumber(value: unknown) {
 function normalisePrices(data: Record<string, unknown>): LiveService[] {
   const rows: LiveService[] = [];
 
-  for (const [serviceCode, countries] of Object.entries(data)) {
-    if (!isRecord(countries)) continue;
+  // SMSBower returns prices as country -> service -> { cost, count }.
+  for (const [countryCode, servicesForCountry] of Object.entries(data)) {
+    if (!isRecord(servicesForCountry)) continue;
 
-    for (const [countryCode, availability] of Object.entries(countries)) {
+    for (const [serviceCode, availability] of Object.entries(servicesForCountry)) {
       if (!isRecord(availability)) continue;
 
       const price = toFiniteNumber(availability.cost ?? availability.price);
@@ -104,7 +105,7 @@ export function ServiceTable() {
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-start justify-between gap-4 border-b border-white/8 p-5">
+      <div className="flex items-start justify-between gap-4 border-b border-border p-5">
         <div>
           <CardTitle>Popular services</CardTitle>
           <CardDescription>Live prices and availability from SMSBower.</CardDescription>
@@ -118,11 +119,11 @@ export function ServiceTable() {
       {query.isLoading ? (
         <div className="p-10 text-center text-sm text-muted">Loading live services from SMSBower...</div>
       ) : error ? (
-        <div className="m-6 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5 text-sm text-amber-100">
+        <div className="m-6 flex items-start gap-3 rounded-lg border border-[#F0D47A] bg-[#FFFBEB] p-5 text-sm text-[#714A00]">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
             <p className="font-medium">Live services could not be loaded.</p>
-            <p className="mt-1 text-amber-100/80">
+            <p className="mt-1 text-[#714A00]">
               {error.includes("SMSBOWER_API_KEY")
                 ? "Add SMSBOWER_API_KEY to Vercel as a Secret, select Production, then redeploy."
                 : error}
@@ -134,7 +135,7 @@ export function ServiceTable() {
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full text-left">
-            <thead className="bg-white/5 text-xs uppercase tracking-wider text-muted">
+            <thead className="text-xs text-muted">
               <tr>
                 <th className="px-5 py-4">Service</th>
                 <th className="px-5 py-4">Country</th>
@@ -145,7 +146,7 @@ export function ServiceTable() {
             </thead>
             <tbody>
               {services.map((service) => (
-                <tr key={`${service.code}-${service.country}`} className="border-t border-white/8">
+                <tr key={`${service.code}-${service.country}`} className="border-t border-border">
                   <td className="px-5 py-4 text-sm font-medium text-text">{service.name}</td>
                   <td className="px-5 py-4 text-sm text-muted">{service.country}</td>
                   <td className="px-5 py-4 text-sm text-text">${service.price.toFixed(2)}</td>

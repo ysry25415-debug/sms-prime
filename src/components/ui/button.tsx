@@ -7,23 +7,23 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants = {
-  primary: "bg-primary text-white hover:bg-blue-500 shadow-[0_12px_30px_rgba(59,130,246,0.28)]",
-  secondary: "bg-surface text-text border border-border hover:border-blue-400/60 hover:bg-slate-700/70",
-  ghost: "bg-transparent text-text hover:bg-white/5 border border-transparent",
-  danger: "bg-danger text-white hover:bg-red-500"
+  primary: "bg-primary text-white hover:bg-black",
+  secondary: "border border-border bg-white text-text hover:border-[#C4A132] hover:bg-[#FFFCF1]",
+  ghost: "border border-transparent bg-transparent text-text hover:bg-[#EFECDD]",
+  danger: "bg-danger text-white hover:bg-[#8F1D13]"
 };
 
 const sizes = {
-  sm: "h-9 px-3 text-sm",
-  md: "h-11 px-4 text-sm",
-  lg: "h-12 px-5 text-base"
+  sm: "h-8 px-3 text-sm",
+  md: "h-10 px-4 text-sm",
+  lg: "h-11 px-5 text-base"
 };
 
 export function Button({ className, variant = "primary", size = "md", ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#E5B928]/50 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         variants[variant],
         sizes[size],
         className

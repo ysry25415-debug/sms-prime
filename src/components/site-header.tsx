@@ -2,68 +2,34 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Search, Settings, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export function SiteHeader() {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith("/dashboard");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/8 bg-background/70 backdrop-blur-2xl">
-      <div className="mx-auto flex max-w-[1440px] items-center gap-4 px-4 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-glow">
-            <span className="text-sm font-bold">SP</span>
-          </div>
-          <div>
-            <div className="text-sm font-semibold tracking-[0.16em] text-text">SMSPrime</div>
-            <div className="text-xs text-muted">Secure SMS operations</div>
-          </div>
+    <header className="border-b border-border bg-[#F7F5ED]">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-5 px-4 lg:px-8">
+        <Link href="/" className="flex items-center gap-2.5" aria-label="SMSPrime home">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#E5B928] text-sm font-bold text-[#1E1D19]">SP</span>
+          <span className="text-[15px] font-semibold tracking-[-0.02em] text-text">SMSPrime</span>
         </Link>
-
-        <div className="hidden flex-1 lg:block">
-          <div className="relative max-w-xl">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-            <Input className="pl-10" placeholder={isDashboard ? "Search services, countries, orders..." : "Search services, pricing, docs..."} />
-          </div>
-        </div>
-
+        {!isDashboard ? (
+          <nav className="ml-6 hidden items-center gap-6 text-sm text-muted md:flex" aria-label="Main navigation">
+            <a className="transition hover:text-text" href="#numbers">Numbers</a>
+            <a className="transition hover:text-text" href="#process">How it works</a>
+            <Link className="transition hover:text-text" href="/subscription">Plans</Link>
+            <Link className="transition hover:text-text" href="/support">Support</Link>
+          </nav>
+        ) : null}
         <div className="ml-auto flex items-center gap-2">
           {isDashboard ? (
-            <>
-              <Button variant="secondary" size="sm" className="hidden md:inline-flex">
-                <Bell className="h-4 w-4" />
-                Alerts
-              </Button>
-              <Button variant="secondary" size="sm" className="hidden md:inline-flex">
-                <Settings className="h-4 w-4" />
-              </Button>
-              <div className="hidden rounded-xl border border-white/8 bg-white/5 px-4 py-2 text-sm text-text md:block">
-                Wallet: <span className="font-semibold text-muted">not funded</span>
-              </div>
-              <Link href="/dashboard/profile">
-                <Button variant="primary" size="sm">
-                  <UserCircle2 className="h-4 w-4" />
-                  Profile
-                </Button>
-              </Link>
-            </>
+            <Link href="/dashboard/profile"><Button variant="secondary" size="sm">Account</Button></Link>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-text transition hover:bg-white/10"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-white transition hover:bg-blue-500"
-              >
-                Get started
-              </Link>
+              <Link className="px-3 text-sm font-medium text-text" href="/login">Sign in</Link>
+              <Link href="/register"><Button size="sm">Create account</Button></Link>
             </>
           )}
         </div>
