@@ -60,10 +60,22 @@ function normaliseAvailability(data: unknown, countries: Country[]) {
   return Object.entries(data)
     .flatMap(([countryId, value]) => {
       if (!isRecord(value)) return [];
-      const price = asNumber(value.price ?? value.cost);
-      const stock = asNumber(value.count ?? value.stock ?? value.qty);
+      // SMSBower returns country -> partner -> { price, count }, not a direct country quote.
+      // Keep the lowest live partner price and the total available stock for the country.
+      const partners = Object.values(value)
+        .flatMap((partner) => {
+          if (!isRecord(partner)) return [];
+          const price = asNumber(partner.price ?? partner.cost);
+          const stock = asNumber(partner.count ?? partner.stock ?? partner.qty);
+          return price !== undefined || stock !== undefined ? [{ price, stock }] : [];
+        });
+      const price = partners.reduce<number | undefined>((lowest, partner) => {
+        if (partner.price === undefined) return lowest;
+        return lowest === undefined ? partner.price : Math.min(lowest, partner.price);
+      }, undefined);
+      const stock = partners.reduce((total, partner) => total + (partner.stock ?? 0), 0);
       const country = names.get(String(countryId));
-      return country && (price !== undefined || stock !== undefined) ? [{ country, price, stock }] : [];
+      return country && partners.length > 0 ? [{ country, price, stock }] : [];
     })
     .sort((left, right) => (right.stock ?? -1) - (left.stock ?? -1) || (left.price ?? Infinity) - (right.price ?? Infinity));
 }
@@ -114,7 +126,12 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
   const selectedAvailability = availability.find((item) => item.country.id === country?.id);
 
   const reserve = useMutation({
-    mutationFn: () => postProvider<Activation>({ action: "getNumberV2", service: service!.code, country: country!.id }),
+    mutationFn: () => postProvider<Activation>({
+      action: "getNumberV2",
+      service: service!.code,
+      country: country!.id,
+      ...(selectedAvailability?.price !== undefined ? { maxPrice: String(selectedAvailability.price) } : {})
+    }),
     onSuccess: (data) => {
       setActivation(data);
       setConfirming(false);
@@ -202,7 +219,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
                     return (
                       <button key={item.country.id} type="button" onClick={() => { setCountry(item.country); setActivation(null); }} className={`grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-4 border-b border-[#F0ECDD] px-4 py-4 text-left last:border-b-0 transition sm:px-5 ${selected ? "bg-[#FFF8D8]" : "hover:bg-[#FFFCF0]"}`}>
                         <span className="min-w-0"><span className="block truncate text-sm font-medium text-text">{item.country.name}</span><span className="mt-0.5 block text-xs text-muted">{item.stock !== undefined ? `${item.stock.toLocaleString()} numbers available` : "Live availability"}</span></span>
-                        <span className="text-right text-sm font-semibold tabular-nums text-text">{item.price !== undefined ? `$${item.price.toFixed(2)}` : "—"}</span>
+                        <span className="text-right text-sm font-semibold tabular-nums text-text">{item.price !== undefined ? `from $${item.price.toFixed(2)}` : "—"}</span>
                         <span className={`grid h-5 w-5 place-items-center rounded-full border ${selected ? "border-[#A98100] bg-[#E5B928] text-[#1E1D19]" : "border-[#CFC7AB] text-transparent"}`}><Check className="h-3.5 w-3.5" /></span>
                       </button>
                     );
@@ -216,7 +233,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
               <div className="mt-6 space-y-5">
                 <div><p className="text-xs font-medium text-muted">Service</p><p className="mt-1.5 text-sm font-medium text-text">{service?.name ?? "Not selected"}</p></div>
                 <div><p className="text-xs font-medium text-muted">Country</p><p className="mt-1.5 text-sm font-medium text-text">{country?.name ?? "Not selected"}</p></div>
-                <div className="border-t border-[#E8E1C9] pt-5"><p className="text-xs font-medium text-muted">Price</p><p className="mt-1 text-2xl font-semibold tracking-[-0.04em] tabular-nums text-text">{selectedAvailability?.price !== undefined ? `$${selectedAvailability.price.toFixed(2)}` : "—"}</p><p className="mt-1 text-xs text-muted">{selectedAvailability?.stock !== undefined ? `${selectedAvailability.stock.toLocaleString()} numbers available now` : "Select a country to view live availability."}</p></div>
+                <div className="border-t border-[#E8E1C9] pt-5"><p className="text-xs font-medium text-muted">Price</p><p className="mt-1 text-2xl font-semibold tracking-[-0.04em] tabular-nums text-text">{selectedAvailability?.price !== undefined ? `from $${selectedAvailability.price.toFixed(2)}` : "—"}</p><p className="mt-1 text-xs text-muted">{selectedAvailability?.stock !== undefined ? `${selectedAvailability.stock.toLocaleString()} numbers available now` : "Select a country to view live availability."}</p></div>
               </div>
 
               {activation?.phoneNumber ? <div className="mt-7 rounded-xl bg-[#FFF2B8] p-4"><p className="text-xs font-medium text-[#765B00]">Number reserved</p><p className="mt-1 break-all text-lg font-semibold tracking-[-0.03em] text-text">{activation.phoneNumber}</p><p className="mt-2 text-xs text-[#765B00]">Activation {activation.activationId ? `#${activation.activationId}` : "created"}. Follow it in Orders.</p></div> : null}
