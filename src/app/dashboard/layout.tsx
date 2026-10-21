@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { DashboardShell } from "@/components/dashboard-shell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -12,9 +11,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[100dvh]">
       <SiteHeader />
-      <DashboardShell>{children}</DashboardShell>
+      <main className="mx-auto max-w-[1280px] px-5 py-8 lg:px-8 lg:py-10">{children}</main>
     </div>
   );
 }
+
+
