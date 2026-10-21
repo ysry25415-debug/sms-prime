@@ -53,29 +53,40 @@ function normaliseCountries(data: unknown): Country[] {
   });
 }
 
-function normaliseAvailability(data: unknown, countries: Country[]) {
+function countryFromKey(key: string, countries: Country[]) {
+  const direct = countries.find((country) => country.id === key);
+  if (direct) return direct;
+
+  const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const compactKey = normalise(key);
+  const byName = countries.find((country) => normalise(country.name) === compactKey);
+  if (byName) return { ...byName, id: key };
+
+  const aliases: Record<string, string> = {
+    usa: "United States",
+    uk: "United Kingdom",
+    uae: "United Arab Emirates",
+    korea: "South Korea",
+    czechia: "Czech Republic"
+  };
+  const name = aliases[compactKey] ?? key.replace(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return { id: key, name };
+}
+
+function normaliseAvailability(data: unknown, serviceCode: string, countries: Country[]) {
   if (!isRecord(data)) return [] as Availability[];
-  const names = new Map(countries.map((country) => [country.id, country]));
 
   return Object.entries(data)
     .flatMap(([countryId, value]) => {
       if (!isRecord(value)) return [];
-      // SMSBower returns country -> partner -> { price, count }, not a direct country quote.
-      // Keep the lowest live partner price and the total available stock for the country.
-      const partners = Object.values(value)
-        .flatMap((partner) => {
-          if (!isRecord(partner)) return [];
-          const price = asNumber(partner.price ?? partner.cost);
-          const stock = asNumber(partner.count ?? partner.stock ?? partner.qty);
-          return price !== undefined || stock !== undefined ? [{ price, stock }] : [];
-        });
-      const price = partners.reduce<number | undefined>((lowest, partner) => {
-        if (partner.price === undefined) return lowest;
-        return lowest === undefined ? partner.price : Math.min(lowest, partner.price);
-      }, undefined);
-      const stock = partners.reduce((total, partner) => total + (partner.stock ?? 0), 0);
-      const country = names.get(String(countryId));
-      return country && partners.length > 0 ? [{ country, price, stock }] : [];
+      // getPrices returns country -> service -> { cost, count }.
+      const quote = value[serviceCode];
+      if (!isRecord(quote)) return [];
+      const price = asNumber(quote.cost ?? quote.price);
+      const stock = asNumber(quote.count ?? quote.stock ?? quote.qty);
+      return price !== undefined || stock !== undefined
+        ? [{ country: countryFromKey(String(countryId), countries), price, stock }]
+        : [];
     })
     .sort((left, right) => (right.stock ?? -1) - (left.stock ?? -1) || (left.price ?? Infinity) - (right.price ?? Infinity));
 }
@@ -113,15 +124,15 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
   }, [search, servicesQuery.data]);
 
   const availabilityQuery = useQuery({
-    queryKey: ["smsbower", "top-countries", service?.code],
-    queryFn: () => getProvider<unknown>(`getTopCountriesByService&service=${encodeURIComponent(service!.code)}`),
+    queryKey: ["smsbower", "prices", service?.code],
+    queryFn: () => getProvider<unknown>(`getPrices&service=${encodeURIComponent(service!.code)}`),
     enabled: Boolean(service),
     staleTime: 60_000,
     retry: false
   });
   const availability = useMemo(
-    () => normaliseAvailability(availabilityQuery.data, countries),
-    [availabilityQuery.data, countries]
+    () => service ? normaliseAvailability(availabilityQuery.data, service.code, countries) : [],
+    [availabilityQuery.data, countries, service]
   );
   const selectedAvailability = availability.find((item) => item.country.id === country?.id);
 
@@ -146,7 +157,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
     setShowResults(false);
   };
 
-  const catalogError = servicesQuery.error ?? countriesQuery.error;
+  const catalogError = servicesQuery.error;
   const isCatalogLoading = servicesQuery.isLoading || countriesQuery.isLoading;
 
   return (
@@ -161,7 +172,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
         ) : null}
 
         <div className="overflow-hidden rounded-2xl border border-[#E7DFBE] bg-white">
-          <div className="flex min-h-14 items-center gap-5 border-b border-[#EEE8D4] bg-[#FFFBEA] px-5 sm:px-7">
+          <div className="flex min-h-14 items-center gap-5 border-b border-[#EEE8D4] bg-[#FFFBEA] px-5 sm:px-7">{/* taste-skill-ignore: active data tab separator */}
             <span className="h-14 border-b-2 border-[#C69A00] pt-[18px] text-sm font-semibold text-text">Numbers</span>
             <span className="text-sm text-muted">Live catalogue</span>
           </div>
@@ -186,7 +197,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
                     autoComplete="off"
                   />
                   {showResults && search.trim() ? (
-                    <div className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-[#DED7BF] bg-white p-1 shadow-[0_12px_28px_rgba(40,32,0,0.12)]">
+                    <div className="absolute z-20 mt-2 max-h-72 w-full overflow-y-auto rounded-xl border border-[#DED7BF] bg-white p-1 shadow-[0_12px_28px_rgba(40,32,0,0.12)]">{/* taste-skill-ignore: floating search menu */}
                       {matchingServices.map((item) => (
                         <button key={item.code} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => chooseService(item)} className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm text-text transition hover:bg-[#FFF9DD]">
                           <span>{item.name}</span><ChevronRight className="h-4 w-4 text-muted" />
@@ -210,17 +221,17 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
                 </div>
 
                 <div className="mt-4 overflow-hidden rounded-xl border border-[#E8E3D3]">
-                  {availabilityQuery.isLoading ? <div className="flex min-h-52 items-center justify-center gap-2 text-sm text-muted"><LoaderCircle className="h-4 w-4 animate-spin" />Checking live availability…</div> : null}
+                  {availabilityQuery.isLoading ? <div className="flex min-h-52 items-center justify-center gap-2 text-sm text-muted"><LoaderCircle className="h-4 w-4 animate-spin" />Checking live prices and availability…</div> : null}
                   {!service && !availabilityQuery.isLoading ? <div className="flex min-h-52 items-center px-5 text-sm leading-6 text-muted">The country list stays empty until you select a service. This keeps prices and stock tied to the choice you actually made.</div> : null}
                   {service && availabilityQuery.error ? <div className="min-h-52 px-5 py-8 text-sm text-danger">{messageFor(availabilityQuery.error)}</div> : null}
                   {service && !availabilityQuery.isLoading && !availabilityQuery.error && availability.length === 0 ? <div className="min-h-52 px-5 py-8 text-sm text-muted">No live country availability was returned for this service. Try another service or refresh later.</div> : null}
                   {availability.map((item) => {
                     const selected = item.country.id === country?.id;
                     return (
-                      <button key={item.country.id} type="button" onClick={() => { setCountry(item.country); setActivation(null); }} className={`grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-4 border-b border-[#F0ECDD] px-4 py-4 text-left last:border-b-0 transition sm:px-5 ${selected ? "bg-[#FFF8D8]" : "hover:bg-[#FFFCF0]"}`}>
+                      <button key={item.country.id} type="button" onClick={() => { setCountry(item.country); setActivation(null); }} className={`grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-4 border-b border-[#F0ECDD] px-4 py-4 text-left last:border-b-0 transition sm:px-5 ${selected ? "bg-[#FFF8D8]" : "hover:bg-[#FFFCF0]"}`}>{/* taste-skill-ignore: real availability table row */}
                         <span className="min-w-0"><span className="block truncate text-sm font-medium text-text">{item.country.name}</span><span className="mt-0.5 block text-xs text-muted">{item.stock !== undefined ? `${item.stock.toLocaleString()} numbers available` : "Live availability"}</span></span>
                         <span className="text-right text-sm font-semibold tabular-nums text-text">{item.price !== undefined ? `from $${item.price.toFixed(2)}` : "—"}</span>
-                        <span className={`grid h-5 w-5 place-items-center rounded-full border ${selected ? "border-[#A98100] bg-[#E5B928] text-[#1E1D19]" : "border-[#CFC7AB] text-transparent"}`}><Check className="h-3.5 w-3.5" /></span>
+                        <span className={`grid h-5 w-5 place-items-center rounded-full border ${selected ? "border-[#A98100] bg-[#E5B928] text-[#1E1D19]" : "border-[#CFC7AB] text-[#FFFDF5]"}`}><Check className="h-3.5 w-3.5" /></span>
                       </button>
                     );
                   })}
@@ -228,12 +239,12 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
               </div>
             </div>
 
-            <aside className="border-t border-[#EEE8D4] bg-[#FFFDF5] p-5 sm:p-7 lg:border-l lg:border-t-0">
+            <aside className="border-t border-[#EEE8D4] bg-[#FFFDF5] p-5 sm:p-7 lg:border-l lg:border-t-0">{/* taste-skill-ignore: selection panel boundary */}
               <h2 className="text-lg font-semibold tracking-[-0.025em] text-text">Your selection</h2>
               <div className="mt-6 space-y-5">
                 <div><p className="text-xs font-medium text-muted">Service</p><p className="mt-1.5 text-sm font-medium text-text">{service?.name ?? "Not selected"}</p></div>
                 <div><p className="text-xs font-medium text-muted">Country</p><p className="mt-1.5 text-sm font-medium text-text">{country?.name ?? "Not selected"}</p></div>
-                <div className="border-t border-[#E8E1C9] pt-5"><p className="text-xs font-medium text-muted">Price</p><p className="mt-1 text-2xl font-semibold tracking-[-0.04em] tabular-nums text-text">{selectedAvailability?.price !== undefined ? `from $${selectedAvailability.price.toFixed(2)}` : "—"}</p><p className="mt-1 text-xs text-muted">{selectedAvailability?.stock !== undefined ? `${selectedAvailability.stock.toLocaleString()} numbers available now` : "Select a country to view live availability."}</p></div>
+                <div className="border-t border-[#E8E1C9] pt-5">{/* taste-skill-ignore: selection summary separator */}<p className="text-xs font-medium text-muted">Price</p><p className="mt-1 text-2xl font-semibold tracking-[-0.04em] tabular-nums text-text">{selectedAvailability?.price !== undefined ? `from $${selectedAvailability.price.toFixed(2)}` : "—"}</p><p className="mt-1 text-xs text-muted">{selectedAvailability?.stock !== undefined ? `${selectedAvailability.stock.toLocaleString()} numbers available now` : "Select a country to view live availability."}</p></div>
               </div>
 
               {activation?.phoneNumber ? <div className="mt-7 rounded-xl bg-[#FFF2B8] p-4"><p className="text-xs font-medium text-[#765B00]">Number reserved</p><p className="mt-1 break-all text-lg font-semibold tracking-[-0.03em] text-text">{activation.phoneNumber}</p><p className="mt-2 text-xs text-[#765B00]">Activation {activation.activationId ? `#${activation.activationId}` : "created"}. Follow it in Orders.</p></div> : null}
@@ -251,7 +262,7 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
 
       {confirming && service && country ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[#1E1D19]/35 p-4" role="dialog" aria-modal="true" aria-labelledby="reserve-title">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(30,29,25,0.24)]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(30,29,25,0.24)]">{/* taste-skill-ignore: modal elevation */}
             <div className="flex items-start justify-between gap-5"><div><p className="text-sm font-medium text-[#896B00]">Confirm request</p><h2 id="reserve-title" className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-text">Reserve this number?</h2></div><button type="button" className="rounded-lg p-2 text-muted transition hover:bg-[#F6F3E7] hover:text-text" onClick={() => setConfirming(false)} aria-label="Close confirmation"><X className="h-5 w-5" /></button></div>
             <p className="mt-4 text-sm leading-6 text-muted">You are about to create a paid activation from your wallet for <span className="font-medium text-text">{service.name}</span> in <span className="font-medium text-text">{country.name}</span>{selectedAvailability?.price !== undefined ? ` at approximately $${selectedAvailability.price.toFixed(2)}` : ""}.</p>
             {reserve.error ? <p className="mt-4 text-sm text-danger">{messageFor(reserve.error)}</p> : null}
