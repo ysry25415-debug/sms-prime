@@ -149,6 +149,15 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
     }
   });
 
+  const cancelActivation = useMutation({
+    mutationFn: () => postProvider<{ result?: string }>({
+      action: "setStatus",
+      id: String(activation!.activationId),
+      status: "8"
+    }),
+    onSuccess: () => setActivation(null)
+  });
+
   const chooseService = (item: Service) => {
     setService(item);
     setSearch(item.name);
@@ -247,7 +256,18 @@ export function ProviderExplorer({ mode = "public" }: { mode?: "public" | "works
                 <div className="border-t border-[#E8E1C9] pt-5">{/* taste-skill-ignore: selection summary separator */}<p className="text-xs font-medium text-muted">Price</p><p className="mt-1 text-2xl font-semibold tracking-[-0.04em] tabular-nums text-text">{selectedAvailability?.price !== undefined ? `from $${selectedAvailability.price.toFixed(2)}` : "—"}</p><p className="mt-1 text-xs text-muted">{selectedAvailability?.stock !== undefined ? `${selectedAvailability.stock.toLocaleString()} numbers available now` : "Select a country to view live availability."}</p></div>
               </div>
 
-              {activation?.phoneNumber ? <div className="mt-7 rounded-xl bg-[#FFF2B8] p-4"><p className="text-xs font-medium text-[#765B00]">Number reserved</p><p className="mt-1 break-all text-lg font-semibold tracking-[-0.03em] text-text">{activation.phoneNumber}</p><p className="mt-2 text-xs text-[#765B00]">Activation {activation.activationId ? `#${activation.activationId}` : "created"}. Follow it in Orders.</p></div> : null}
+              {activation?.phoneNumber ? (
+                <div className="mt-7 rounded-xl bg-[#FFF2B8] p-4">
+                  <p className="text-xs font-medium text-[#765B00]">Number reserved</p>
+                  <p className="mt-1 break-all text-lg font-semibold tracking-[-0.03em] text-text">{activation.phoneNumber}</p>
+                  <p className="mt-2 text-xs text-[#765B00]">Activation {activation.activationId ? `#${activation.activationId}` : "created"}. Follow it in Orders.</p>
+                  {cancelActivation.error ? <p className="mt-3 text-xs leading-5 text-danger">{messageFor(cancelActivation.error)}</p> : null}
+                  <Button variant="secondary" size="sm" className="mt-4 w-full" disabled={!activation.activationId || cancelActivation.isPending} onClick={() => cancelActivation.mutate()}>
+                    {cancelActivation.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+                    Cancel number
+                  </Button>
+                </div>
+              ) : null}
 
               {mode === "public" ? (
                 <Link href={country ? "/login" : "/register"} className="mt-7 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition hover:bg-black">{country ? "Sign in to request number" : "Create account to continue"}<ArrowRight className="h-4 w-4" /></Link>
